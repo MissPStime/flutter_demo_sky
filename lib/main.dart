@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutterappsky/find/find_page.dart';
+import 'package:flutterappsky/main_index_provider.dart';
+import 'package:provider/provider.dart';
 
 import 'home/home_page.dart';
 import 'me/me_page.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    //MultiProvider全局监听多种状态
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => MainIndexProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -33,16 +43,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _currentIndex=1;
   //底部导航对应的widget
   List <Widget> _bodys=[HomePage(),FindPage(),MePage()];
-
-  void _onBottomTap(int index){
-
-    setState(() {
-      _currentIndex=index;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -178,16 +180,18 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.account_box),title: Text("Me")),
         ],
         //当前选中的index
-        currentIndex: _currentIndex,
+        currentIndex: context.watch<MainIndexProvider>().getIndex(),
         //点击事件
-        onTap: _onBottomTap,
+        onTap: (int index){
+           context.read<MainIndexProvider>().setIndex(index);
+        },
         //选中的颜色，默认为主题色
         fixedColor: Colors.blue,
         //底部导航栏的颜色
         backgroundColor: Colors.white,
       ),
 
-      body: _bodys[_currentIndex],
+      body: _bodys[context.watch<MainIndexProvider>().getIndex()],
      // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
