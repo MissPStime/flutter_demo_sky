@@ -1,13 +1,34 @@
+import 'dart:io';
+
+import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutterappsky/find/find_page.dart';
 import 'package:flutterappsky/main_index_provider.dart';
+import 'package:flutterappsky/utils/Constants.dart';
+import 'package:flutterappsky/utils/SPUtils.dart';
 import 'package:provider/provider.dart';
 
 import 'home/home_page.dart';
 import 'me/me_page.dart';
+Future getImei() async{
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+
+  if(Platform.isIOS){
+    //ios相关代码
+    IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+    print('Running on ${iosInfo.identifierForVendor}');
+  }else if(Platform.isAndroid){
+    //android相关代码
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    print('Running on ${androidInfo.androidId}');  // e.g. "Moto G (4)"
+    SPUtils.setString(Constants.IMEI, androidInfo.androidId);
+  }
+}
 
 void main() {
+  SPUtils.getInstance();
+  getImei();
   runApp(
     //MultiProvider全局监听多种状态
     MultiProvider(
@@ -22,6 +43,7 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
